@@ -1,0 +1,116 @@
+[
+  {
+    "id": "trasloco",
+    "titolo": "Il trasloco",
+    "contesto": "Due conviventi stanno preparando gli scatoloni la sera prima del trasloco. Sono stanchi e in ritardo.",
+    "battute": [
+      { "nome": "Chiara", "testo": "Sono le dieci e la cucina è ancora tutta da imballare.", "tono": "stanca, preoccupata" },
+      { "nome": "Lorenzo", "testo": "Eh, lo vedo. Io però è da stamattina che smonto mobili, mica sono stato a guardare.", "tono": "sulla difensiva" },
+      { "nome": "Chiara", "testo": "Lo so che hai lavorato tanto. Mi dai una mano con i piatti, così finiamo prima?", "tono": "calma, collaborativa" },
+      { "nome": "Lorenzo", "testo": "Tra un attimo, finisco questa cosa.", "tono": "distratto, evasivo" },
+      { "nome": "Chiara", "testo": "\"Tra un attimo\" lo dici da un'ora. Il camion arriva alle sette, Lorenzo.", "tono": "spazientita" },
+      { "nome": "Lorenzo", "testo": "E allora chiamalo e spostalo, visto che sei tu quella che ha voluto fare tutto in un weekend.", "tono": "irritato, accusatorio" },
+      { "nome": "Chiara", "testo": "Il weekend l'abbiamo scelto insieme. Adesso mi serve che ci dividiamo il lavoro: io la cucina, tu i libri.", "tono": "ferma ma non ostile" },
+      { "nome": "Lorenzo", "testo": "I libri, certo. La parte più pesante a me, come al solito.", "tono": "sarcastico" },
+      { "nome": "Chiara", "testo": "Va bene, facciamo cambio: i libri li prendo io e tu fai i piatti.", "tono": "conciliante" },
+      { "nome": "Lorenzo", "testo": "No, dai, lascia. I libri li faccio io. Scusa, sono cotto e me la prendo con te.", "tono": "si ammorbidisce, sincero" },
+      { "nome": "Chiara", "testo": "Siamo cotti tutti e due. Ordiniamo una pizza e ci diamo un'ora, poi a letto.", "tono": "affettuosa, pratica" },
+      { "nome": "Lorenzo", "testo": "Ci sto. Margherita per me, e i bicchieri li incarto io.", "tono": "sollevato" }
+    ]
+  },
+  {
+    "id": "pagella",
+    "titolo": "La pagella",
+    "contesto": "Un padre e la figlia di sedici anni parlano dei voti del primo quadrimestre, in cucina, dopo cena.",
+    "battute": [
+      { "nome": "Padre", "testo": "Ho visto il registro elettronico. Due insufficienze, Marta.", "tono": "serio, trattenuto" },
+      { "nome": "Marta", "testo": "Lo sapevo che guardavi. Non potevi aspettare che te lo dicessi io?", "tono": "infastidita" },
+      { "nome": "Padre", "testo": "Avrei preferito, sì. Sono tre settimane che aspetto.", "tono": "secco" },
+      { "nome": "Marta", "testo": "Tanto qualunque cosa faccio per te non è mai abbastanza.", "tono": "amara, accusatoria" },
+      { "nome": "Padre", "testo": "Non è vero, e lo sai. Sono preoccupato, non arrabbiato. Mi racconti cosa sta succedendo in fisica?", "tono": "si calma, aperto" },
+      { "nome": "Marta", "testo": "Succede che il prof spiega per quelli bravi e gli altri si arrangiano.", "tono": "sfogo" },
+      { "nome": "Padre", "testo": "Capisco, dev'essere frustrante restare indietro. Cosa ti aiuterebbe di più adesso?", "tono": "attento" },
+      { "nome": "Marta", "testo": "Niente. Lasciami stare e basta.", "tono": "chiusa" },
+      { "nome": "Padre", "testo": "Ecco, brava, chiuditi in camera come sempre, che così i voti si sistemano da soli.", "tono": "sbotta, sarcastico" },
+      { "nome": "Marta", "testo": "Vedi? Dici che non sei arrabbiato e poi fai così.", "tono": "ferita" },
+      { "nome": "Padre", "testo": "Hai ragione, ho sbagliato tono. Ti propongo una cosa: cerchiamo insieme qualcuno per le ripetizioni e decidi tu chi.", "tono": "si riprende, costruttivo" },
+      { "nome": "Marta", "testo": "Va bene. Però scelgo io il giorno, il mercoledì ho pallavolo.", "tono": "cauta, pone una condizione" },
+      { "nome": "Padre", "testo": "D'accordo, il giorno lo scegli tu.", "tono": "sereno" }
+    ]
+  },
+  {
+    "id": "turni",
+    "titolo": "Il cambio turno",
+    "contesto": "Due colleghe in un reparto ospedaliero. Una chiede all'altra di coprirle il turno di sabato, per la seconda volta nel mese.",
+    "battute": [
+      { "nome": "Ilaria", "testo": "Senti, sabato mi copriresti il pomeriggio? Ho un impegno che non posso spostare.", "tono": "sbrigativa" },
+      { "nome": "Nadia", "testo": "Sabato ho già cambiato per te due settimane fa. Questo mese non riesco.", "tono": "ferma, tranquilla" },
+      { "nome": "Ilaria", "testo": "Ah. Bella collega.", "tono": "piccata" },
+      { "nome": "Nadia", "testo": "Capisco che ti metta in difficoltà. Sabato però ho il compleanno di mio figlio e ci tengo a esserci.", "tono": "calma, chiara" },
+      { "nome": "Ilaria", "testo": "E quando serviva a te, a marzo, chi c'era? Io. Ma evidentemente la memoria è corta.", "tono": "rinfaccia" },
+      { "nome": "Nadia", "testo": "Me lo ricordo e te ne sono grata. Non per questo posso dire sempre di sì.", "tono": "riconosce, tiene il punto" },
+      { "nome": "Ilaria", "testo": "Vabbè, lascia perdere, mi arrangio. Come sempre.", "tono": "vittimista" },
+      { "nome": "Nadia", "testo": "Aspetta. Domenica mattina sono libera: se ti serve, quella te la copro volentieri.", "tono": "propone un'alternativa" },
+      { "nome": "Ilaria", "testo": "La domenica non mi serve a niente.", "tono": "brusca" },
+      { "nome": "Nadia", "testo": "Allora prova a sentire Teresa, sabato mi sembra che sia a casa. Se vuoi glielo chiedo io.", "tono": "disponibile" },
+      { "nome": "Ilaria", "testo": "No, la sento io. Scusa, sono nervosa per questa storia e me la sono presa con te.", "tono": "si scusa" },
+      { "nome": "Nadia", "testo": "Tranquilla, succede. Fammi sapere come va.", "tono": "cordiale" }
+    ]
+  },
+  {
+    "id": "allenamento",
+    "titolo": "Dopo la gara",
+    "contesto": "Un allenatore di nuoto e un'atleta di diciassette anni parlano a bordo vasca dopo una gara andata male.",
+    "battute": [
+      { "nome": "Allenatore", "testo": "Due secondi sopra il tuo tempo. Me lo spieghi?", "tono": "duro" },
+      { "nome": "Sara", "testo": "Non lo so. Ho sbagliato la virata e poi non ho più recuperato.", "tono": "abbattuta" },
+      { "nome": "Allenatore", "testo": "La virata la sbagli da un mese e in allenamento fai finta di niente.", "tono": "rimprovero" },
+      { "nome": "Sara", "testo": "Non faccio finta di niente. Ci sto lavorando, ma in gara mi blocco.", "tono": "si difende, senza attaccare" },
+      { "nome": "Allenatore", "testo": "Ti blocchi perché hai la testa da un'altra parte. Così non vai da nessuna parte.", "tono": "svalutante" },
+      { "nome": "Sara", "testo": "Questa frase non mi aiuta. Ho bisogno di capire cosa cambiare, non di sentirmi dire che non valgo.", "tono": "ferma, ferita ma lucida" },
+      { "nome": "Allenatore", "testo": "Hai ragione, sono stato troppo duro. Ero deluso, ma per la gara, non per te.", "tono": "fa un passo indietro" },
+      { "nome": "Sara", "testo": "Lo capisco. Anche io sono delusa.", "tono": "più distesa" },
+      { "nome": "Allenatore", "testo": "Facciamo così: da lunedì venti minuti solo di virate a fine seduta, e le filmiamo.", "tono": "pratico, propositivo" },
+      { "nome": "Sara", "testo": "Va bene. Posso chiedere a Elisa di riprendermi anche da sotto?", "tono": "collaborativa" },
+      { "nome": "Allenatore", "testo": "Ottima idea. Adesso vai a scioglierti, che domani si ricomincia.", "tono": "incoraggiante" }
+    ]
+  },
+  {
+    "id": "riunione-condominio",
+    "titolo": "La riunione di condominio",
+    "contesto": "Assemblea di condominio: si discute la spesa per rifare il tetto. Parlano l'amministratore e due condomini.",
+    "battute": [
+      { "nome": "Amministratore", "testo": "Il preventivo per il tetto è di quarantamila euro, da dividere per millesimi.", "tono": "neutro, informativo" },
+      { "nome": "Sig. Bruni", "testo": "Quarantamila? Ma siete impazziti? Qui qualcuno ci sta mangiando sopra.", "tono": "indignato, insinuante" },
+      { "nome": "Amministratore", "testo": "Capisco che la cifra spaventi. Ho portato tre preventivi, li potete confrontare tutti.", "tono": "calmo, trasparente" },
+      { "nome": "Sig.ra Vitale", "testo": "Io vorrei vederli con calma prima di votare. Possiamo averne una copia?", "tono": "pacata, chiara" },
+      { "nome": "Sig. Bruni", "testo": "Ecco, perdiamo altro tempo. Intanto a me piove in casa, ma a voi dei piani bassi che importa.", "tono": "polemico" },
+      { "nome": "Sig.ra Vitale", "testo": "Mi dispiace per l'infiltrazione, dev'essere pesante. Proprio per questo voglio essere sicura che il lavoro sia fatto bene.", "tono": "empatica, ferma" },
+      { "nome": "Sig. Bruni", "testo": "Sì, sì, belle parole.", "tono": "sprezzante" },
+      { "nome": "Amministratore", "testo": "Propongo questo: invio i preventivi stasera e ci rivediamo giovedì solo per il voto. Mezz'ora, non di più.", "tono": "propositivo" },
+      { "nome": "Sig. Bruni", "testo": "Giovedì. E se piove ancora, il conto dell'imbianchino lo mando a lei.", "tono": "minaccioso" },
+      { "nome": "Amministratore", "testo": "Se ci sono danni li segnaliamo all'assicurazione del condominio, la pratica la apro io domani.", "tono": "fermo, risolutivo" },
+      { "nome": "Sig.ra Vitale", "testo": "Per me giovedì va bene.", "tono": "neutro" },
+      { "nome": "Sig. Bruni", "testo": "Va bene, giovedì. Grazie per la pratica.", "tono": "si placa, a denti stretti" }
+    ]
+  },
+  {
+    "id": "cena-suoceri",
+    "titolo": "La cena dai suoceri",
+    "contesto": "Una coppia in macchina, di ritorno da una cena dai genitori di lui.",
+    "battute": [
+      { "nome": "Elisa", "testo": "Tua madre stasera ha fatto tre battute sul mio lavoro. Tre.", "tono": "tesa" },
+      { "nome": "Matteo", "testo": "Ma dai, scherzava. Sei tu che te la prendi per tutto.", "tono": "minimizza, svaluta" },
+      { "nome": "Elisa", "testo": "Non me la prendo per tutto. Mi ha dato fastidio e vorrei potertelo dire senza sentirmi esagerata.", "tono": "ferma, chiara" },
+      { "nome": "Matteo", "testo": "E cosa dovevo fare, scusa? Litigare con mia madre a tavola?", "tono": "sulla difensiva" },
+      { "nome": "Elisa", "testo": "No. Mi sarebbe bastato che cambiassi argomento, o che dicessi una parola.", "tono": "calma" },
+      { "nome": "Matteo", "testo": "Certo, perché è sempre colpa mia. Mai una volta che vada bene quello che faccio.", "tono": "vittimista, generalizza" },
+      { "nome": "Elisa", "testo": "Non sto dicendo che è colpa tua. Sto dicendo che mi sono sentita sola.", "tono": "vulnerabile" },
+      { "nome": "Matteo", "testo": "Mh.", "tono": "chiuso" },
+      { "nome": "Elisa", "testo": "Matteo, ci sei?", "tono": "cauta" },
+      { "nome": "Matteo", "testo": "Ci sono. Non me n'ero accorto, davvero. Mi dispiace che ti sia sentita così.", "tono": "sincero" },
+      { "nome": "Elisa", "testo": "Grazie. La prossima volta ti faccio un cenno, così capisci al volo?", "tono": "sollevata, propositiva" },
+      { "nome": "Matteo", "testo": "Sì. E a mia madre parlo io, domani, con calma.", "tono": "si prende un impegno" }
+    ]
+  }
+]
