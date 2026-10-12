@@ -11,6 +11,7 @@ import { readFile, stat } from "node:fs/promises";
 import { createServer } from "node:http";
 import { dirname, extname, isAbsolute, join, normalize } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { createAnalyzer } from "./lib/analysis.mjs";
 import { speechRate } from "./lib/audio.mjs";
 import { COOKIE, createAuth, parseCookies } from "./lib/auth.mjs";
 import { createProcessor } from "./lib/process.mjs";
@@ -71,6 +72,7 @@ export function readConfig(env = process.env) {
     maxMinutes: Number(env.MAX_MINUTES ?? 30),
     openrouterKey: env.OPENROUTER_API_KEY || null,
     openrouterModel: env.OPENROUTER_MODEL || "openai/gpt-4.1",
+    analysisModel: env.ANALYSIS_MODEL || "openai/gpt-4.1",
     sttCredentials,
     sttLocation: env.GOOGLE_STT_LOCATION || "eu",
   };
@@ -116,7 +118,7 @@ const CSV_COLUMNS = [
   "registrazione", "data", "tipo", "dialogo", "riga", "nome", "testo", "annotazione", "nota",
   "testo_copione", "tono_copione", "testo_stt", "inizio_s", "fine_s", "durata_s", "parlato_s", "pausa_prima_s",
   "pause_interne", "pausa_interna_max_s", "parole_al_secondo", "volume_medio_dbfs", "volume_picco_dbfs",
-  "intonazione_mediana_hz", "intonazione_bassa_hz", "intonazione_alta_hz", "intonazione_dev_std_hz",
+  "intonazione_mediana_hz", "intonazione_bassa_hz", "intonazione_alta_hz", "intonazione_dev_std_hz", "esito_analisi",
 ];
 
 function csvRows(record) {
@@ -128,7 +130,7 @@ function csvRows(record) {
       chunk.scriptText ?? "", chunk.scriptTone ?? "", chunk.sttText ?? "", seconds(chunk.startMs), seconds(chunk.endMs),
       seconds(f.durationMs), seconds(f.speechMs), seconds(f.pauseBeforeMs), f.internalPauses ?? "", seconds(f.longestInternalPauseMs),
       f.wordsPerSecond ?? "", f.volumeDbfsMean ?? "", f.volumeDbfsPeak ?? "", f.pitchMedianHz ?? "", f.pitchLowHz ?? "",
-      f.pitchHighHz ?? "", f.pitchStdHz ?? "",
+      f.pitchHighHz ?? "", f.pitchStdHz ?? "", chunk.analysis?.esito ? TAG_LABEL[chunk.analysis.esito] : "",
     ];
   });
 }
@@ -150,7 +152,8 @@ export async function createApp(config, { log = console, fetchImpl = fetch } = {
     model: config.openrouterModel,
     fetchImpl,
   });
-  const processor = createProcessor({ store, stt, log });
+  const analyzer = await createAnalyzer({ apiKey: config.openrouterKey, model: config.analysisModel, fetchImpl });
+  const processor = createProcessor({ store, stt, analyzer, log });
   const maxBytesPerRecording = (rate) => config.maxMinutes * 60 * rate * 2;
 
   function send(res, status, body, headers = {}) {
@@ -415,7 +418,9 @@ export async function createApp(config, { log = console, fetchImpl = fetch } = {
       if (seg[1] !== "recordings" || !isValidId(id)) throw new HttpError(404, "Non trovato");
       const record = await requireRecord(id);
 
-      if (seg.length === 3 && method === "GET") return send(res, 200, { sttAttiva: stt.enabled, ...adminView(record) });
+      if (seg.length === 3 && method === "GET") {
+        return send(res, 200, { sttAttiva: stt.enabled, analisiAttiva: analyzer.enabled, ...adminView(record) });
+      }
       if (seg.length === 3 && method === "DELETE") {
         await store.remove(id);
         return send(res, 200, { ok: true });
@@ -447,8 +452,19 @@ export async function createApp(config, { log = console, fetchImpl = fetch } = {
       if (seg[3] === "retranscribe" && method === "POST") {
         if (!stt.enabled) throw new HttpError(409, "Trascrizione automatica non configurata");
         if (record.status !== "pronta") throw new HttpError(409, "Registrazione non ancora pronta");
-        void processor.transcribeAll(id).catch((error) => log.warn(`[stt] ${id}: ${error.message}`));
+        void processor
+          .transcribeAll(id)
+          .then(() => processor.analyze(id))
+          .catch((error) => log.warn(`[stt] ${id}: ${error.message}`));
         return send(res, 202, { ok: true });
+      }
+      if (seg[3] === "reanalyze" && method === "POST") {
+        if (!analyzer.enabled) throw new HttpError(409, "Analisi automatica non configurata");
+        if (record.status !== "pronta") throw new HttpError(409, "Registrazione non ancora pronta");
+        // Solo le battute senza un esito valido: quelle già analizzate sullo stesso testo restano.
+        const battute = processor.toAnalyze(record);
+        if (battute.length) void processor.analyze(id, battute).catch((error) => log.warn(`[analisi] ${id}: ${error.message}`));
+        return send(res, 202, { ok: true, battute: battute.length });
       }
       // Registrazione abbandonata (pagina chiusa senza terminare): si elabora ciò che è arrivato.
       if (seg[3] === "recover" && method === "POST") {
@@ -479,6 +495,10 @@ export async function createApp(config, { log = console, fetchImpl = fetch } = {
           found = chunk;
         });
         if (!found) throw new HttpError(404, "Battuta inesistente");
+        // Il testo corretto cambia l'esito della battuta e il contesto delle due successive.
+        if (typeof body.transcript === "string" && analyzer.enabled) {
+          void processor.analyze(id, [n, n + 1, n + 2]).catch((error) => log.warn(`[analisi] ${id}: ${error.message}`));
+        }
         return send(res, 200, { ok: true });
       }
     }
@@ -512,7 +532,7 @@ export async function createApp(config, { log = console, fetchImpl = fetch } = {
     }
   });
 
-  return { server, store, sttEnabled: stt.enabled, canGenerate: scripts.canGenerate };
+  return { server, store, sttEnabled: stt.enabled, analysisEnabled: analyzer.enabled, canGenerate: scripts.canGenerate };
 }
 
 /** Avvia il servizio con la configurazione dell'ambiente. Usato anche da `app.cjs` (Plesk/Passenger). */
@@ -524,6 +544,7 @@ export async function start() {
       console.log(`Aura Registrazioni in ascolto sulla porta ${config.port}`);
       console.log(`  dati: ${config.dataDir}`);
       console.log(`  trascrizione automatica: ${app.sttEnabled ? "attiva (Google STT)" : "NON configurata — testo da inserire a mano"}`);
+      console.log(`  analisi delle battute: ${app.analysisEnabled ? "attiva (OpenRouter, prompt di Aura)" : "NON configurata — serve OPENROUTER_API_KEY"}`);
       console.log(`  conversazioni generate: ${app.canGenerate ? "attive (OpenRouter)" : "NON configurate — si usa la raccolta di copioni"}`);
     });
     return app;

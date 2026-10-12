@@ -779,6 +779,40 @@ async function viewDetail(id) {
     return el("span", { class: `badge ${tone}` }, `trascrizione ${chunk.sttStatus}`);
   }
 
+  /** Contenuto del riquadro "Esito analisi": la classe e la spiegazione data dal modello. */
+  function analysisContent(chunk) {
+    const analysis = chunk.analysis;
+    if (chunk.analysisStatus === "ok" && analysis) {
+      const reasons = [analysis.aggressivo, analysis.assertivo].map((step) => step?.analisi?.conclusione).filter(Boolean);
+      return [
+        el("span", { class: "badge esito", "data-tag": analysis.esito }, TAGS.find(([tag]) => tag === analysis.esito)?.[1] ?? analysis.esito),
+        ...reasons.map((reason) => el("p", { class: "small" }, reason)),
+      ];
+    }
+    const text =
+      chunk.analysisStatus === "in attesa" || chunk.analysisStatus === "in corso"
+        ? "Analisi in corso…"
+        : chunk.analysisStatus === "errore"
+          ? "L'analisi non è riuscita: si può riprovare con «Completa l'analisi»."
+          : chunk.analysisStatus === "senza testo"
+            ? "Nessun testo da analizzare: scrivi la trascrizione."
+            : record.analisiAttiva
+              ? "Non ancora analizzata: usa «Completa l'analisi»."
+              : "L'analisi automatica non è configurata.";
+    return [el("span", { class: "muted small" }, text)];
+  }
+
+  /** Etichetta che apre e chiude un campo tenuto nascosto, per non influenzare chi valuta. */
+  function reveal(label, content) {
+    content.hidden = true;
+    const button = el("button", { type: "button", class: "reveal", "aria-expanded": "false" }, label);
+    button.addEventListener("click", () => {
+      content.hidden = !content.hidden;
+      button.setAttribute("aria-expanded", String(!content.hidden));
+    });
+    return button;
+  }
+
   function featureLine(chunk) {
     const f = chunk.features ?? {};
     const item = (label, value) => el("span", {}, `${label} `, el("b", {}, value));
@@ -800,6 +834,8 @@ async function viewDetail(id) {
     const transcript = el("textarea", { rows: "3", value: chunk.transcript ?? "", placeholder: record.sttAttiva ? "" : "Scrivi qui ciò che viene detto" });
     const note = el("textarea", { rows: "3", value: chunk.nota ?? "", placeholder: "Perché questa valutazione, dubbi, osservazioni sul tono…" });
     const badgeSlot = el("span", {}, sttBadge(chunk));
+    const transcriptField = el("label", {}, "Trascrizione (si può correggere)", transcript);
+    const analysisBox = el("div", { class: "analysis stack" }, analysisContent(chunk));
     const tone = chunk.scriptTone ? el("span", { class: "tone muted small", hidden: true }, ` — indicazione data a chi recita: ${chunk.scriptTone}`) : null;
     const node = el("div", { class: `card chunk${chunk.annotazione ? " rated" : ""}` });
 
@@ -828,7 +864,11 @@ async function viewDetail(id) {
     const bind = (field, key) =>
       field.addEventListener("change", async () => {
         const value = field.value;
-        if (await save(`${base}/chunks/${chunk.n}`, { [key]: value })) state[key] = value;
+        if (await save(`${base}/chunks/${chunk.n}`, { [key]: value })) {
+          state[key] = value;
+          // Il testo corretto viene analizzato di nuovo: si aspetta il nuovo esito.
+          if (key === "transcript" && record.analisiAttiva) startPolling();
+        }
       });
     bind(speaker, "speaker");
     bind(transcript, "transcript");
@@ -848,12 +888,14 @@ async function viewDetail(id) {
         "div",
         { class: "stack" },
         chunk.scriptText ? el("div", { class: "script small" }, el("b", {}, "Copione: "), chunk.scriptText, tone) : null,
-        el("label", {}, "Trascrizione (si può correggere)", transcript),
+        el("div", { class: "row" }, reveal("Trascrizione", transcriptField), reveal("Esito analisi", analysisBox)),
+        transcriptField,
+        analysisBox,
       ),
       el("div", { class: "stack" }, el("div", { class: "eval", role: "group", "aria-label": `Valutazione della battuta ${chunk.n}` }, buttons), el("label", {}, "Note", note)),
       featureLine(chunk),
     );
-    cards.set(chunk.n, { node, state, transcript, badgeSlot, tone });
+    cards.set(chunk.n, { node, state, transcript, badgeSlot, tone, analysisBox });
     return node;
   }
 
@@ -863,7 +905,7 @@ async function viewDetail(id) {
     progressText.textContent = `${rated} / ${cards.size} valutate`;
   }
 
-  /** Aggiorna trascrizioni e stato arrivati dal server, senza toccare ciò che si sta scrivendo. */
+  /** Aggiorna trascrizioni, esiti e stato arrivati dal server, senza toccare ciò che si sta scrivendo. */
   function mergeFromServer(fresh) {
     for (const chunk of fresh.chunks) {
       const card = cards.get(chunk.n);
@@ -876,10 +918,16 @@ async function viewDetail(id) {
         card.state.sttStatus = chunk.sttStatus;
         card.badgeSlot.replaceChildren(...[sttBadge(chunk)].filter(Boolean));
       }
+      if (chunk.analysisStatus !== card.state.analysisStatus || chunk.analysis?.at !== card.state.analysis?.at) {
+        card.state.analysisStatus = chunk.analysisStatus;
+        card.state.analysis = chunk.analysis;
+        card.analysisBox.replaceChildren(...analysisContent(chunk));
+      }
     }
   }
 
-  const sttPending = (item) => item.chunks.some((chunk) => chunk.sttStatus === "in attesa" || chunk.sttStatus === "in corso");
+  const waiting = (status) => status === "in attesa" || status === "in corso";
+  const pending = (item) => item.chunks.some((chunk) => waiting(chunk.sttStatus) || waiting(chunk.analysisStatus));
 
   function startPolling() {
     clearInterval(polling);
@@ -889,7 +937,7 @@ async function viewDetail(id) {
         const fresh = await api(base);
         if (disposed) return;
         mergeFromServer(fresh);
-        if (!sttPending(fresh)) clearInterval(polling);
+        if (!pending(fresh)) clearInterval(polling);
       } catch {
         /* si riprova al giro successivo */
       }
@@ -939,6 +987,27 @@ async function viewDetail(id) {
       )
     : null;
 
+  const reanalyze = record.analisiAttiva
+    ? el(
+        "button",
+        {
+          class: "secondary",
+          onclick: async (event) => {
+            event.target.disabled = true;
+            try {
+              const { battute } = await api(`${base}/reanalyze`, { method: "POST" });
+              flash(battute ? `Analisi avviata: ${battute} battute` : "Esiti già aggiornati: niente da analizzare");
+              if (battute) startPolling();
+            } catch (failure) {
+              flash(failure.message);
+            }
+            setTimeout(() => (event.target.disabled = false), 4000);
+          },
+        },
+        "Completa l'analisi",
+      )
+    : null;
+
   const chunkNodes = record.chunks.map(chunkCard);
   progress();
 
@@ -953,7 +1022,7 @@ async function viewDetail(id) {
       el(
         "div",
         { class: "card stack" },
-        el("div", { class: "row spread" }, progressText, el("div", { class: "row" }, retranscribe, el("a", { class: "button secondary", href: `/api${base}/export.csv` }, "Esporta CSV"), el("a", { class: "button secondary", href: `/api${base}/analysis` }, "Scarica analisi audio"))),
+        el("div", { class: "row spread" }, progressText, el("div", { class: "row" }, retranscribe, reanalyze, el("a", { class: "button secondary", href: `/api${base}/export.csv` }, "Esporta CSV"), el("a", { class: "button secondary", href: `/api${base}/analysis` }, "Scarica analisi audio"))),
         el("label", {}, "Note sulla registrazione", generalNote),
         record.mode === "recitata" ? el("label", { class: "check" }, showTone, el("span", {}, "Mostra l'indicazione di tono data a chi recitava (può influenzare la valutazione)")) : null,
       ),
@@ -968,7 +1037,7 @@ async function viewDetail(id) {
     clearTimeout(savedTimer);
     audio.pause();
   };
-  if (sttPending(record)) startPolling();
+  if (pending(record)) startPolling();
 }
 
 // ── Avvio ────────────────────────────────────────────────────────────────────
